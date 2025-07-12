@@ -16,7 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from app import views
+from qna import views as qna
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.index, name='index'),
+    path('qna/',qna.qna,name='qna'),
+    path('qna/ans/',qna.que_answer,name="ans"),
+    path('qna/<str:que_id>/upvote/',qna.upvote_que,name='upvote_question'),
+    path('qna/<str:que_id>/downvote/',qna.downvote_que,name='downvote_question'),
 ]

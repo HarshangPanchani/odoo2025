@@ -1,0 +1,676 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Python World | Q&A</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+        <link rel="stylesheet" href="{% static 'css/scroll.css' %}" />
+        <link rel="stylesheet" href="{% static 'css/qna.css' %}" />
+        <link rel="stylesheet" href="{% static 'css/uni.css' %}" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+        <style>
+            .gradient-strip {
+                height: 7px;
+                width: 100%;
+                background: linear-gradient(to right, #ff5733, #ffc300, #28b463);
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                transition: 1s;
+                background-size: 600% 600%;
+                animation: gradientShift 1s linear infinite;
+            }       
+            @keyframes gradientShift {
+                0% {
+                    background-position: 0% 50%;
+                }
+                50% {
+                    background-position: 100% 50%;
+                }
+                100% {
+                    background-position: 0% 50%;
+                }
+            }
+            
+            #gradient-strip {
+                opacity: 0;
+                height: 0;
+                overflow: hidden;
+                transition: opacity 0.5s ease, 0.5 out;
+            }
+            #gradient-strip.show {
+                opacity: 1;
+                height: 7px;
+                bottom:-5px;
+            }
+            
+        </style>
+    </head>
+    <body>
+        <header style="margin-bottom: 25px;">
+            <form action="{% url 'ai' 'qna.html' %}" id="voiceForm" method="POST" style="display:none;">
+                {% csrf_token %}
+                <input type="hidden" id="questionInput" name="question">
+            </form>
+            <div class="container header-container">
+                <button type="button" onclick="startDictation()" id="start" style="display: none;"></button>
+                <div class="logo" onclick="window.location.href = '{% url 'index' %}'">
+                    Python<span>World</span>
+                </div>
+                <div class="search-bar">
+                    <input type="text" placeholder="Search for Questions you Got" />
+                </div>
+                <div class="nav-links">
+                    <a href="{% url 'feed' %}"> Feed</a>
+                    <a href="{% url 'article' %}"> Articles</a>
+                    <a href="{% url 'qna' %}"style="color: var(--primary); font-weight: 600;"> Q&A</a>
+                    <a href="{% url 'utils' %}"> Utilities</a>
+                    {% if not request.session.user_id %}
+                    <button class="primary-btn" onclick="window.location.href='{% url 'login' %}'">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                    {% else %}
+                    <a href="{% url 'profile' request.session.username %}" style="color: var(--primary); font-weight: 600;">
+                         {{request.session.username}}
+                    </a>
+                    <button class="primary-btn" onclick="window.location.href='{% url 'logoutUser' %}'">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="gradient-strip" id="gradient-strip"></div>
+        </header>
+
+        <main class="container">
+            <div class="page-header">
+                <div class="page-title">
+                    <h1><i class="fas fa-question-circle"></i> Questions & Answers</h1>
+                    <p>Ask questions, share your knowledge, and help others in the Python World community.</p>
+                </div>
+            </div>
+
+            <div class="qa-section">
+                <div class="ask-question">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <h2><i class="fas fa-lightbulb"></i> Ask a Question</h2>
+                        <input type="text" placeholder="Question Title" name="title" required />
+                        <textarea rows="4" placeholder="What do you want to ask? Be specific and provide details to get better answers." name="content" required></textarea>
+                        <button type="submit"><i class="fas fa-paper-plane"></i> Submit Question</button>
+                    </form>
+                </div>
+                
+                {% if questions %}
+                    {% for question in questions %}
+                    <div class="question-card" data-question-id="{{question.id}}">
+                        {% if forloop.first %}
+                        <div class="featured-question">
+                            <i class="fas fa-star"></i> Featured
+                        </div>
+                        {% endif %}
+                        <h3>{{question.title}}</h3>
+                        <p>{{question.content}}</p>
+                        <div class="question-footer">
+                            <div class="stats">
+                                <button type="submit" class="vote-button tooltip" onclick="vote('upvote', '{{ question.id }}')">
+                                    <span class="tooltiptext">Upvote this question</span>
+                                    <svg
+                                        class="{% if request.session.user_id|to_objectid in question.upvotes %}upvote-active{% else %}upvote{% endif %}"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        id="upvote-icon-{{ question.id }}"
+                                        viewBox="0 0 24 24"
+                                        width="20"
+                                        height="20">
+                                        <polygon points="3 14 12 3 21 14 16 14 16 22 8 22 8 14 3 14" />
+                                    </svg>
+                                    <span id="upvote-count-{{ question.id }}" class="vote-count">{{ question.upvotes|length }}</span>
+                                </button>
+
+                                <button type="submit" class="vote-button tooltip" onclick="vote('downvote', '{{ question.id }}')">
+                                    <span class="tooltiptext">Downvote this question</span>
+                                    <svg
+                                        class="{% if request.session.user_id|to_objectid in question.downvotes%}downvote-active{% else %}downvote{% endif %}"
+                                        id="downvote-icon-{{question.id}}"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        width="20"
+                                        height="20">
+                                        <polygon
+                                            points="3 14 12 3 21 14 16 14 16 22 8 22 8 14 3 14"
+                                            transform="rotate(180, 12, 12)" />
+                                    </svg>
+                                    <span id="downvote-count-{{ question.id }}" class="vote-count">{{ question.downvotes|length }}</span>
+                                </button>
+
+                                <button class="answer-btn" onclick="showAnswers('{{question.id}}')">
+                                    <p hidden id="questionId">{{question.id}}</p>
+                                    <i class="fas fa-comment-dots"></i>
+                                    <span>Answers</span>
+                                    <span class="answer-count">{{question.answers|length}}</span>
+                                </button>
+                            </div>
+                            <span>
+                                <i class="fas fa-user-circle"></i> Asked by <strong>{{question.username}}</strong>
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-comments"></i>
+                        <h3>No questions yet</h3>
+                        <p>Be the first to ask a question and start the conversation!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+
+        <!-- Enhanced Answer Popup -->
+        <div class="answer-popup" id="answerPopup">
+            <div class="answer-container">
+                <div class="answer-header">
+                    <h2 id="popupQuestionTitle"><i class="fas fa-comments"></i> Answers</h2>
+                    <button class="close-popup" onclick="hideAnswers()"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <div class="question-preview" id="questionPreview" style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <!-- Question preview will be inserted here dynamically -->
+                </div>
+                
+                <div class="answer-list" id="answerList">
+                    <!-- Answers will be loaded here -->
+                    <div class="loader-container">
+                        <div class="loader">
+                            <div class="loader-dot"></div>
+                            <div class="loader-dot"></div>
+                            <div class="loader-dot"></div>
+                        </div>
+                        <div class="loader-text">Loading answers...</div>
+                    </div>
+                </div>
+                
+                <div class="answer-form">
+                    <h3><i class="fas fa-pen-fancy"></i> Add Your Answer</h3>
+                    <textarea id="answerContent" rows="4" placeholder="Share your knowledge, experience, or solution here..." name="content"></textarea>
+                    <button onclick="addAnswer()"><i class="fas fa-paper-plane"></i> Submit Answer</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Helper function to get cookies (for CSRF token)
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== "") {
+                    const cookies = document.cookie.split(";");
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === name + "=") {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            const csrftoken = getCookie("csrftoken");
+
+            // Store the current question ID and title
+            let currentQuestionId = null;
+            let currentQuestionTitle = null;
+            let currentQuestionContent = null;
+
+            // Mobile menu toggle functionality
+            const menuToggle = document.getElementById('menuToggle');
+            const navLinks = document.getElementById('navLinks');
+            
+            if (menuToggle) {
+                menuToggle.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                    menuToggle.innerHTML = navLinks.classList.contains('active') 
+                        ? '<i class="fas fa-times"></i>' 
+                        : '<i class="fas fa-bars"></i>';
+                });
+            }
+
+            // Function to show answers for a question
+            function showAnswers(questionId) {
+                currentQuestionId = questionId;
+                
+                // Find the question elements
+                const questionCard = document.querySelector(`[data-question-id="${questionId}"]`);
+                currentQuestionTitle = questionCard ? questionCard.querySelector("h3").textContent : "Question";
+                currentQuestionContent = questionCard ? questionCard.querySelector("p").textContent : "";
+
+                // Update the popup title and preview
+                document.getElementById("popupQuestionTitle").innerHTML = `<i class="fas fa-comments"></i> Answers`;
+                
+                // Add question preview
+                const questionPreview = document.getElementById("questionPreview");
+                questionPreview.innerHTML = `
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">${currentQuestionTitle}</h3>
+                    <p style="color: var(--text-dim); font-size: 0.95rem;">${currentQuestionContent}</p>
+                `;
+                
+                // Show loading animation
+                document.getElementById("answerList").innerHTML = `
+                    <div class="loader-container">
+                        <div class="loader">
+                            <div class="loader-dot"></div>
+                            <div class="loader-dot"></div>
+                            <div class="loader-dot"></div>
+                        </div>
+                        <div class="loader-text">Loading answers...</div>
+                    </div>
+                `;
+                
+                // Show the popup with animation
+                const popup = document.getElementById("answerPopup");
+                popup.classList.add("active");
+                document.body.style.overflow = "hidden";
+                
+                // Fetch answers from server
+                axios
+                    .get("/qna/", {
+                        params: {
+
+                            from: "js",
+                            qid: questionId,
+                            uid: "request.session.user_id",
+                        },
+                    })
+                    .then((res) => {
+                        const answerData = JSON.parse(res.data);
+                        answerData.forEach((data) => {
+                            const date = new Date(data.created_at.$date).toString().split(" ", 4).join(" ");
+                            data.created_at = date;
+                        });
+                        
+                        // Load answers after a small delay to show the loading animation
+                        setTimeout(() => {
+                            loadAnswers(questionId, answerData);
+                        }, 500);
+                    })
+                    .catch(error => {
+                        document.getElementById("answerList").innerHTML = `
+                            <div style="text-align: center; padding: 2rem;">
+                                <i class="fas fa-exclamation-circle" style="font-size: 2rem; color: var(--danger); margin-bottom: 1rem;"></i>
+                                <p>Error loading answers. Please try again.</p>
+                            </div>
+                        `;
+                    });
+            }
+
+            // Function to hide answers popup
+            function hideAnswers() {
+                const popup = document.getElementById("answerPopup");
+                popup.classList.remove("active");
+                document.body.style.overflow = "auto";
+                currentQuestionId = null;
+                
+                // Reset the answer content field
+                document.getElementById("answerContent").value = "";
+            }
+
+            // Function to load answers for a question
+            function loadAnswers(questionId, answersData) {
+                const answerList = document.getElementById("answerList");
+                answerList.innerHTML = ""; // Clear previous answers
+                
+                const answers = answersData || [];
+
+                if (answers.length > 0) {
+                    answers.forEach((answer) => {
+                        const answerElement = document.createElement("div");
+                        answerElement.className = "answer-item";
+                        
+                        // Get first letter of username for avatar
+                        const firstLetter = answer.username ? answer.username[0].toUpperCase() : "U";
+                        
+                        answerElement.innerHTML = `
+                            <div class="answer-meta">
+                                <strong>
+                                    <div class="user-avatar" style="width: 24px; height: 24px; font-size: 0.7rem;">${firstLetter}</div>
+                                    ${answer.username}
+                                </strong>
+                                <span><i class="far fa-clock"></i> ${answer.created_at}</span>
+                            </div>
+                            <div class="answer-content">
+                                <p>${answer.content}</p>
+                            </div>
+                        `;
+                        answerList.appendChild(answerElement);
+                    });
+                } else {
+                    answerList.innerHTML = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <i class="far fa-comment-dots" style="font-size: 2rem; color: var(--text-dim); margin-bottom: 1rem;"></i>
+                            <p>No answers yet. Be the first to share your knowledge!</p>
+                        </div>
+                    `;
+                }
+            }
+
+            // Function to add a new answer
+            function addAnswer() {
+                if (!currentQuestionId) return;
+
+                const answerContent = document.getElementById("answerContent").value.trim();
+                if (!answerContent) {
+                    alert("Please write an answer before submitting.");
+                    return;
+                }
+                
+                // Disable the submit button and show loading state
+                const submitButton = document.querySelector(".answer-form button");
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = `
+                    <div class="loader" style="justify-content: center;">
+                        <div class="loader-dot" style="width: 6px; height: 6px;"></div>
+                        <div class="loader-dot" style="width: 6px; height: 6px;"></div>
+                        <div class="loader-dot" style="width: 6px; height: 6px;"></div>
+                    </div>
+                `;
+                
+                axios
+                    .post(
+                        "/qna/ans/",
+                        {
+                            data: {
+                                qid: currentQuestionId,
+                                content: answerContent,
+                                uid: "{{request.session.user_id}}",
+                            },
+                        },
+                        {
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRFToken": csrftoken,
+                            },
+                        }
+                    )
+                    .then((res) => {
+                        const response = JSON.parse(res.data.msg);
+                        
+                        // Create a new answer element
+                        const answerList = document.getElementById("answerList");
+                        const answerElement = document.createElement("div");
+                        answerElement.className = "answer-item new-answer";
+                        
+                        // Format the date
+                        const date = new Date(response.created_at.$date).toString().split(" ", 4).join(" ");
+                        
+                        // Get first letter of username for avatar
+                        const firstLetter = response.username ? response.username[0].toUpperCase() : "U";
+                        
+                        answerElement.innerHTML = `
+                            <div class="answer-meta">
+                                <strong>
+                                    <div class="user-avatar" style="width: 24px; height: 24px; font-size: 0.7rem;">${firstLetter}</div>
+                                    ${response.username}
+                                </strong>
+                                <span><i class="far fa-clock"></i> ${date}</span>
+                            </div>
+                            <div class="answer-content">
+                                <p>${response.content}</p>
+                            </div>
+                        `;
+                        
+                        // If there was a "no answers yet" message, clear it
+                        if (answerList.querySelector("p")?.textContent.includes("No answers yet")) {
+                            answerList.innerHTML = "";
+                        }
+                        
+                        // Add the new answer to the top
+                        answerList.insertBefore(answerElement, answerList.firstChild);
+                        
+                        // Clear the input field
+                        document.getElementById("answerContent").value = "";
+                        
+                        // Update the answer count on the question card
+                        updateAnswerCount(currentQuestionId);
+                        
+                        // Scroll to the new answer
+                        answerElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        
+                        // Reset the submit button
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonText;
+                    })
+                    .catch(error => {
+                        // Show error message
+                        alert("Failed to submit your answer. Please try again.");
+                        
+                        // Reset the submit button
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonText;
+                    });
+            }
+
+            // Function to update the answer count display on the question card
+            function updateAnswerCount(questionId) {
+                const questionCard = document.querySelector(`[data-question-id="${questionId}"]`);
+                if (questionCard) {
+                    const answerCountElement = questionCard.querySelector(".answer-count");
+                    if (answerCountElement) {
+                        // Get current count and increment
+                        let currentCount = parseInt(answerCountElement.textContent);
+                        answerCountElement.textContent = currentCount + 1;
+                    }
+                }
+            }
+
+            // Vote function for upvoting and downvoting questions
+            function vote(type, id) {
+                // Visual feedback immediately
+                const upIcon = document.getElementById(`upvote-icon-${id}`);
+                const downIcon = document.getElementById(`downvote-icon-${id}`);
+                const upCount = document.getElementById(`upvote-count-${id}`);
+                const downCount = document.getElementById(`downvote-count-${id}`);
+                
+                // Apply immediate visual feedback
+                if (type === "upvote") {
+                    // If already active, remove active state (toggle off)
+                    if (upIcon.classList.contains("upvote-active")) {
+                        upIcon.classList.remove("upvote-active");
+                        upIcon.classList.add("upvote");
+                        upCount.textContent = parseInt(upCount.textContent) - 1;
+                    } else {
+                        // Add active state
+                        upIcon.classList.add("upvote-active");
+                        upIcon.classList.remove("upvote");
+                        upCount.textContent = parseInt(upCount.textContent) + 1;
+                        
+                        // If downvote was active, remove it
+                        if (downIcon.classList.contains("downvote-active")) {
+                            downIcon.classList.remove("downvote-active");
+                            downIcon.classList.add("downvote");
+                            downCount.textContent = parseInt(downCount.textContent) - 1;
+                        }
+                    }
+                } else if (type === "downvote") {
+                    // If already active, remove active state (toggle off)
+                    if (downIcon.classList.contains("downvote-active")) {
+                        downIcon.classList.remove("downvote-active");
+                        downIcon.classList.add("downvote");
+                        downCount.textContent = parseInt(downCount.textContent) - 1;
+                    } else {
+                        // Add active state
+                        downIcon.classList.add("downvote-active");
+                        downIcon.classList.remove("downvote");
+                        downCount.textContent = parseInt(downCount.textContent) + 1;
+                        
+                        // If upvote was active, remove it
+                        if (upIcon.classList.contains("upvote-active")) {
+                            upIcon.classList.remove("upvote-active");
+                            upIcon.classList.add("upvote");
+                            upCount.textContent = parseInt(upCount.textContent) - 1;
+                        }
+                    }
+                }
+                
+                // Send the vote to the server
+                fetch(`/qna/${id}/${type}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCookie("csrftoken"),
+                        "Content-Type": "application/json",
+                    },
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        // Update with actual counts from server
+                        document.getElementById(`upvote-count-${id}`).innerText = data.upvotes;
+                        document.getElementById(`downvote-count-${id}`).innerText = data.downvotes;
+                        
+                        // Update the visual state based on server response
+                        if (type === "upvote") {
+                            if (data.status === "added") {
+                                upIcon.classList.add("upvote-active");
+                                upIcon.classList.remove("upvote");
+                                downIcon.classList.remove("downvote-active");
+                                downIcon.classList.add("downvote");
+                            } else {
+                                upIcon.classList.remove("upvote-active");
+                                upIcon.classList.add("upvote");
+                            }
+                        } else {
+                            if (data.status === "added") {
+                                downIcon.classList.add("downvote-active");
+                                downIcon.classList.remove("downvote");
+                                upIcon.classList.remove("upvote-active");
+                                upIcon.classList.add("upvote");
+                            } else {
+                                downIcon.classList.remove("downvote-active");
+                                downIcon.classList.add("downvote");
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        // Revert UI changes on error
+                        console.error("Error voting:", error);
+                        // Reset to original values (you would need to store these)
+                    });
+            }
+
+            // Close the popup when clicking outside of it
+            document.getElementById("answerPopup").addEventListener("click", function (event) {
+                if (event.target === this) {
+                    hideAnswers();
+                }
+            });
+
+            // Close the popup when pressing Escape key
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape" && document.getElementById("answerPopup").classList.contains("active")) {
+                    hideAnswers();
+                }
+            });
+
+            // Submit answer on Enter key (with shift for new line)
+            document.getElementById("answerContent").addEventListener("keydown", function(event) {
+                if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault(); // Prevent default form submission
+                    addAnswer();
+                }
+            });
+            
+            // Automatically resize text area as content grows
+            const textareas = document.querySelectorAll('textarea');
+            textareas.forEach(textarea => {
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                });
+            });
+        </script>
+        <script>
+
+            let recognition;
+            let isListening = false;
+            const startBtn = document.getElementById("start");
+            document.getElementById("gradient-strip").classList.remove("show");
+            document.addEventListener("keydown", function(event) {
+              if (event.code === "KeyA") {
+                  startDictation();
+              }
+          });
+      
+      
+      
+              setInterval(() => {
+      
+                if (startBtn) {
+                    startBtn.disabled = isListening;
+                }
+            }, 200);
+            
+      
+      
+      
+              function startDictation() {
+                document.getElementById("gradient-strip").classList.add("show");
+                   window.speechSynthesis.cancel();
+      
+                  if ('webkitSpeechRecognition' in window) {
+                      recognition = new webkitSpeechRecognition();
+                      recognition.continuous = false;
+                      recognition.interimResults = false;
+                      recognition.lang = "en-US";
+                      recognition.start();
+                      isListening = true;
+                      recognition.onresult = function (event) {
+                          const transcript = event.results[0][0].transcript;
+                          console.log(transcript);
+                          document.getElementById('questionInput').value = transcript;
+                          recognition.stop();
+                          isListening = false;
+                          document.getElementById('voiceForm').submit();
+                      };
+      
+                      recognition.onerror = function (event) {
+                          //alert('Speech recognition error: ' + event.error);
+                          recognition.stop();
+                          isListening = false;
+                      };
+      
+                      recognition.onend = function () {
+                          isListening = false;
+                          document.getElementById("gradient-strip").classList.remove("show");
+                      };
+                  } else {
+                      alert("Your browser does not support speech recognition.");
+                  }
+              }
+      
+              function stopDictation() {
+                  window.speechSynthesis.cancel();
+                  if (recognition) {
+                      recognition.stop();
+                  }
+              }
+      
+              {% if answer %}
+                  // Only run this if there's an answer
+                  const aiSpeech = new SpeechSynthesisUtterance("{{ answer|escapejs }}");
+                  aiSpeech.onend = () => {
+                      startDictation(); // Wait till AI finishes speaking, then listen again
+    
+                  };
+      
+                  window.speechSynthesis.cancel(); // Cancel anything playing
+                  window.speechSynthesis.speak(aiSpeech);
+                  isListening = false;
+              {% endif %}
+    
+          </script>
+    </body>
+    <div id="mobile-warning">
+        This site is not made for mobile phones
+    </div>
+</html>

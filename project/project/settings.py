@@ -11,10 +11,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
+from pathlib import Path
+from mongoengine import connect
+import os
+import environ
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -25,10 +25,13 @@ SECRET_KEY = 'django-insecure-f338o&-3a#@q($v=#u2-t1fxv2!$o=h2g8y1lp&ih(9%mkdota
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000"  
+]
 
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -38,7 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app',
+    'qna',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True  
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
