@@ -2,7 +2,6 @@
 
 *StackIt* is a minimal, clean, and feature-rich web-based question-and-answer platform built for collaborative learning and structured knowledge sharing. Designed with simplicity and usability in mind, StackIt empowers users to ask questions, share answers, and interact with the community in an intuitive way.
 
-🚀 *Live Demo:* [View StackIt on Render](https://odoo2025.onrender.com/)
 
 ---
 
