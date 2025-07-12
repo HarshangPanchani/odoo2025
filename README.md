@@ -2,7 +2,6 @@
 
 *StackIt* is a minimal, clean, and feature-rich web-based question-and-answer platform built for collaborative learning and structured knowledge sharing. Designed with simplicity and usability in mind, StackIt empowers users to ask questions, share answers, and interact with the community in an intuitive way.
 
-
 ---
 
 ## 🧠 Problem Statement
@@ -15,14 +14,16 @@ In online communities, high signal-to-noise ratio and ease of use are essential 
 
 ---
 
-## 👥 Team members
-| Name  | E-mail |
-|-------|-------------|
-| Harshang Panchani | panchaniharshang@gmail.com |
-| Tirth Gajera | tirthgajera12345@gmail.com |
-| Kishan Patel | kishan7112@gmail.com |
-| Smit Pipalva | smitpipalva@gmail.com |
+## 👥 Team Members
 
+| Name             | E-mail                         |
+|------------------|--------------------------------|
+| Harshang Panchani| panchaniharshang@gmail.com     |
+| Tirth Gajera     | tirthgajera12345@gmail.com     |
+| Kishan Patel     | kishan7112@gmail.com           |
+| Smit Pipalva     | smitpipalva@gmail.com          |
+
+---
 
 ## 👥 User Roles
 
@@ -77,11 +78,6 @@ In online communities, high signal-to-noise ratio and ease of use are essential 
 
 ---
 
-## 🖼 Mockups
-👉 [Excalidraw UI Wireframes](https://link.excalidraw.com/l/65VNwvy7c4X/8bM86GXnnUN)
-
----
-
 ## ⚙ Tech Stack
 
 | Layer         | Technology             |
@@ -90,8 +86,19 @@ In online communities, high signal-to-noise ratio and ease of use are essential 
 | Frontend      | HTML, CSS, Bootstrap, JavaScript |
 | Editor        | Rich text editor (Quill.js / similar) |
 | Database      | *Aiven MySQL* (online) |
-| Hosting       | *Render.com*         |
+| Hosting       | *Render.com*           |
 | Authentication| Custom Django User Model (Email-based) |
-| ORM           | Django ORM             |
+| ORM           | Django ORM             |
 
 ---
+
+![Screenshot 1](./ss/1.png)
+![Screenshot 2](./ss/2.png)
+![Screenshot 3](./ss/3.png)
+![Screenshot 4](./ss/4.png)
+![Screenshot 5](./ss/5.png)
+![Screenshot 6](./ss/6.png)
+![Screenshot 7](./ss/7.png)
+![Screenshot 8](./ss/8.png)
+![Screenshot 9](./ss/9.png)
+![Screenshot 10](./ss/10.png)
