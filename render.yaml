@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: django-web-app
+    env: python
+    plan: free  # or 'starter' / 'standard' etc.
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate
+    startCommand: gunicorn projectname.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: projectname.settings
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "your-service-name.onrender.com"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: your-db-name
+          property: connectionString
