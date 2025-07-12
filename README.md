@@ -92,13 +92,13 @@ In online communities, high signal-to-noise ratio and ease of use are essential 
 
 ---
 
-![Screenshot 1](./ss/1.png)
-![Screenshot 2](./ss/2.png)
-![Screenshot 3](./ss/3.png)
-![Screenshot 4](./ss/4.png)
-![Screenshot 5](./ss/5.png)
-![Screenshot 6](./ss/6.png)
-![Screenshot 7](./ss/7.png)
-![Screenshot 8](./ss/8.png)
-![Screenshot 9](./ss/9.png)
-![Screenshot 10](./ss/10.png)
+![Screenshot 1](./ss/1.jpg)
+![Screenshot 2](./ss/2.jpg)
+![Screenshot 3](./ss/3.jpg)
+![Screenshot 4](./ss/4.jpg)
+![Screenshot 5](./ss/5.jpg)
+![Screenshot 6](./ss/6.jpg)
+![Screenshot 7](./ss/7.jpg)
+![Screenshot 8](./ss/8.jpg)
+![Screenshot 9](./ss/9.jpg)
+![Screenshot 10](./ss/10.jpg)
