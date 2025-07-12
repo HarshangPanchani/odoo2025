@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StackIt - Q&A Forum{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {% load static %}
+    <!-- CSRF Token for JavaScript -->
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <style>
+        /* Global CSS Variables */
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #3730a3;
+            --primary-light: #6366f1;
+            --secondary-color: #6b7280;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --border-radius: 12px;
+            --border-radius-sm: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%) !important;
+            box-shadow: var(--shadow-lg);
+            border-bottom: none;
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+            transition: var(--transition);
+        }
+
+        .navbar-brand:hover {
+            color: rgba(255, 255, 255, 0.9) !important;
+            transform: translateY(-1px);
+        }
+
+        .navbar-brand i {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem;
+            border-radius: var(--border-radius-sm);
+            margin-right: 0.5rem;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white !important;
+        }
+
+        .dropdown-menu {
+            background: var(--bg-card);
+            border: none;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--border-radius);
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1.5rem;
+            color: var(--text-primary);
+            transition: var(--transition);
+            border-radius: 0;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-primary);
+            color: var(--primary-color);
+        }
+
+        .dropdown-header {
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .dropdown-divider {
+            margin: 0.5rem 0;
+            border-color: var(--border-color);
+        }
+
+        /* Search Form */
+        .navbar .form-control {
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: var(--border-radius-sm);
+            padding: 0.75rem 1rem;
+            transition: var(--transition);
+        }
+
+        .navbar .form-control:focus {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .navbar .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-outline-light {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: var(--border-radius-sm);
+            padding: 0.75rem 1rem;
+            transition: var(--transition);
+        }
+
+        .btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* Notification Badge */
+        .badge {
+            background: var(--danger-color) !important;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 50px;
+        }
+
+        /* Alerts */
+        .alert {
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            color: #991b1b;
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            color: #92400e;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: #1e40af;
+            border-left: 4px solid var(--info-color);
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+
+        .btn-close:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        /* Main Content */
+        main {
+            min-height: calc(100vh - 200px);
+            padding: 2rem 0;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-primary) 100%);
+            border-top: 1px solid var(--border-color);
+            margin-top: 3rem;
+            padding: 2rem 0;
+        }
+
+        footer h5 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        footer p {
+            color: var(--text-secondary);
+            margin-bottom: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.25rem;
+            }
+            
+            .navbar-nav .nav-link {
+                padding: 0.75rem 1rem !important;
+            }
+            
+            .navbar .form-control {
+                margin-bottom: 0.5rem;
+            }
+            
+            .dropdown-menu {
+                border-radius: var(--border-radius-sm);
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        /* Notification Styles */
+        .position-relative .badge {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Dropdown Toggle Arrow */
+        .dropdown-toggle::after {
+            margin-left: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .dropdown-toggle[aria-expanded="true"]::after {
+            transform: rotate(180deg);
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+
+        /* Focus Styles */
+        .btn:focus,
+        .form-control:focus,
+        .nav-link:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Loading State */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Text Utilities */
+        .text-gradient {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Simple Rich Text Editor */
+        .rich-text-editor {
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            overflow: hidden;
+            background: white;
+        }
+
+        .rich-text-toolbar {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.5rem;
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .rich-text-toolbar button {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+        }
+
+        .rich-text-toolbar button:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .rich-text-toolbar button.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+        }
+
+        .rich-text-toolbar .separator {
+            width: 1px;
+            height: 24px;
+            background: var(--border-color);
+            margin: 0 0.25rem;
+        }
+
+        .rich-text-toolbar .emoji-picker {
+            position: relative;
+            display: inline-block;
+        }
+
+        .rich-text-toolbar .emoji-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+            display: none;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 0.25rem;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+            max-height: 300px;
+            overflow-y: auto;
+            min-width: 320px;
+        }
+
+        .rich-text-toolbar .emoji-list.show {
+            display: grid;
+        }
+
+        .rich-text-toolbar .emoji-item {
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.3rem;
+            transition: all 0.2s ease;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+        }
+
+        .rich-text-toolbar .emoji-item:hover {
+            background: var(--bg-primary);
+            transform: scale(1.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .rich-text-toolbar .emoji-item:active {
+            transform: scale(0.95);
+        }
+
+        .rich-text-content {
+            min-height: 150px;
+            padding: 1rem;
+            border: none;
+            outline: none;
+            resize: vertical;
+            font-family: inherit;
+            line-height: 1.6;
+            background: white;
+        }
+
+        .rich-text-content:focus {
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .rich-text-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+        }
+
+        .rich-text-content a {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .rich-text-content a:hover {
+            color: var(--primary-hover);
+        }
+
+        /* Reply form rich text editor */
+        .reply-form .rich-text-editor {
+            margin-bottom: 1rem;
+        }
+
+        .reply-form .rich-text-content {
+            min-height: 100px;
+        }
+
+        /* File upload styling */
+        .rich-text-toolbar .file-upload {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .rich-text-toolbar .file-upload input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        /* Alignment buttons */
+        .rich-text-toolbar .alignment-group {
+            display: flex;
+            gap: 0.125rem;
+        }
+
+        .rich-text-toolbar .alignment-group button {
+            min-width: 35px;
+            padding: 0.5rem 0.5rem;
+        }
+
+        /* Notification Modal Styles */
+        #notificationsModal .modal-dialog {
+            max-width: 600px;
+        }
+
+        #notificationsModal .modal-content {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+        }
+
+        #notificationsModal .modal-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            color: white;
+            border-bottom: none;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        #notificationsModal .modal-title {
+            font-weight: 600;
+        }
+
+        #notificationsModal .btn-close {
+            filter: invert(1);
+        }
+
+        #notificationsModal .modal-body {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        #notificationsModal .list-group {
+            border: none;
+        }
+
+        #notificationsModal .list-group-item {
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        #notificationsModal .list-group-item:last-child {
+            border-bottom: none;
+        }
+
+        #notificationsModal .list-group-item:hover {
+            background: var(--bg-primary);
+            transform: translateX(5px);
+        }
+
+        #notificationsModal .list-group-item.fw-bold {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        #notificationsModal .list-group-item.fw-bold:hover {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        }
+
+        /* Notification Badge Animation */
+        #notification-badge {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0) translateX(-50%);
+            }
+            40% {
+                transform: translateY(-5px) translateX(-50%);
+            }
+            60% {
+                transform: translateY(-3px) translateX(-50%);
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-stack-overflow"></i>StackIt
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'ask_question' %}">Ask Question</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Tags
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for tag in tags|slice:":10" %}
+                            <li><a class="dropdown-item" href="{% url 'tag_detail' tag.pk %}">{{ tag.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                </ul>
+                
+                <!-- Search Form -->
+                <form class="d-flex me-3" method="GET" action="{% url 'home' %}">
+                    <input class="form-control me-2" type="search" name="q" placeholder="Search questions..." 
+                           value="{{ request.GET.q }}">
+                    <button class="btn btn-outline-light" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+                
+                <!-- User Menu -->
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <!-- Notifications -->
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="modal" data-bs-target="#notificationsModal">
+                                <i class="fas fa-bell"></i>
+                                {% if unread_notifications_count > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" id="notification-badge">
+                                    {{ unread_notifications_count }}
+                                </span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        
+                        <!-- User Profile -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1"></i>{{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'profile' user.username %}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'edit_profile' %}">Settings</a></li>
+                                {% if user.is_staff %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'admin_panel:dashboard' %}">Admin Panel</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="text-gradient">StackIt</h5>
+                    <p class="text-muted">A minimal Q&A forum platform for collaborative learning.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted">&copy; 2025 StackIt. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notifications Modal -->
+    <div class="modal fade" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notificationsModalLabel">Notifications</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group">
+                        {% for notification in user.notifications.all %}
+                        <a href="{% url 'mark_notification_read' notification.pk %}" class="list-group-item list-group-item-action {% if not notification.is_read %}fw-bold{% endif %}">
+                            {{ notification.message }}
+                        </a>
+                        {% empty %}
+                        <div class="list-group-item">No notifications</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="{% static 'app/js/main.js' %}"></script>
+    <script src="{% static 'app/js/notifications.js' %}"></script>
+    
+    <!-- Simple Rich Text Editor JavaScript -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Common emojis
+        const commonEmojis = ['😀', '😂', '😍', '🤔', '👍', '👎', '❤️', '🔥', '💯', '🎉', '✨', '🌟', '💡', '📝', '🔗', '📷', '🎯', '⚡', '🚀', '💪', '👏', '🙏', '😊', '😎', '🤗', '😴', '😭', '😡', '🤯', '😱', '🥳', '🤩', '😇', '🤠', '👻', '🤖', '👽', '🐱', '🐶', '🦄', '🌈', '⭐', '🌙', '☀️', '🌺', '🍕', '☕', '🍺', '🎵', '🎮', '📚', '💻', '📱', '🎨', '🏆', '🎪', '🎭', '🎬', '🎤', '🎧', '🎸', '🎹', '🎺', '🥁', '🎻', '🎼', '🎹', '🎸', '🎺', '🥁', '🎻', '🎼'];
+        
+        // Initialize rich text editors
+        function initRichTextEditor(container) {
+            if (!container || container.classList.contains('rich-text-initialized')) {
+                return;
+            }
+            
+            container.classList.add('rich-text-initialized');
+            
+            const textarea = container.querySelector('textarea');
+            if (!textarea) return;
+            
+            // Create rich text editor structure
+            const editor = document.createElement('div');
+            editor.className = 'rich-text-editor';
+            
+            // Create toolbar
+            const toolbar = document.createElement('div');
+            toolbar.className = 'rich-text-toolbar';
+            
+            // Text formatting buttons
+            const formatButtons = [
+                { command: 'bold', icon: 'B', title: 'Bold (Ctrl+B)' },
+                { command: 'italic', icon: 'I', title: 'Italic (Ctrl+I)' },
+                { command: 'underline', icon: 'U', title: 'Underline (Ctrl+U)' },
+                { command: 'strikeThrough', icon: 'S', title: 'Strikethrough' }
+            ];
+            
+            formatButtons.forEach(btn => {
+                const button = createToolbarButton(btn.icon, btn.title, btn.command);
+                toolbar.appendChild(button);
+            });
+            
+            // Add separator
+            toolbar.appendChild(createSeparator());
+            
+            // List buttons
+            const listButtons = [
+                { command: 'insertUnorderedList', icon: '•', title: 'Bullet List' },
+                { command: 'insertOrderedList', icon: '1.', title: 'Numbered List' }
+            ];
+            
+            listButtons.forEach(btn => {
+                const button = createToolbarButton(btn.icon, btn.title, btn.command);
+                toolbar.appendChild(button);
+            });
+            
+            // Add separator
+            toolbar.appendChild(createSeparator());
+            
+            // Alignment buttons
+            const alignmentGroup = document.createElement('div');
+            alignmentGroup.className = 'alignment-group';
+            
+            const alignmentButtons = [
+                { command: 'justifyLeft', icon: '⫷', title: 'Align Left' },
+                { command: 'justifyCenter', icon: '⫸', title: 'Align Center' },
+                { command: 'justifyRight', icon: '⫹', title: 'Align Right' }
+            ];
+            
+            alignmentButtons.forEach(btn => {
+                const button = createToolbarButton(btn.icon, btn.title, btn.command);
+                alignmentGroup.appendChild(button);
+            });
+            
+            toolbar.appendChild(alignmentGroup);
+            
+            // Add separator
+            toolbar.appendChild(createSeparator());
+            
+            // Link button
+            const linkButton = createToolbarButton('🔗', 'Insert Link', 'createLink');
+            toolbar.appendChild(linkButton);
+            
+            // Image upload button
+            const imageButton = createImageUploadButton('📷', 'Upload Image');
+            toolbar.appendChild(imageButton);
+            
+            // Emoji picker button
+            const emojiButton = createEmojiPickerButton('😀', 'Insert Emoji');
+            toolbar.appendChild(emojiButton);
+            
+            // Create content area
+            const content = document.createElement('div');
+            content.className = 'rich-text-content';
+            content.contentEditable = true;
+            content.innerHTML = textarea.value || '';
+            content.placeholder = textarea.placeholder || 'Start typing...';
+            
+            // Hide original textarea
+            textarea.style.display = 'none';
+            
+            // Add to editor
+            editor.appendChild(toolbar);
+            editor.appendChild(content);
+            
+            // Insert before textarea
+            textarea.parentNode.insertBefore(editor, textarea);
+            
+            // Update textarea on form submit
+            const form = textarea.closest('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    textarea.value = content.innerHTML;
+                });
+            }
+            
+            // Keyboard shortcuts
+            content.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key.toLowerCase()) {
+                        case 'b':
+                            e.preventDefault();
+                            document.execCommand('bold', false, null);
+                            updateButtonStates();
+                            break;
+                        case 'i':
+                            e.preventDefault();
+                            document.execCommand('italic', false, null);
+                            updateButtonStates();
+                            break;
+                        case 'u':
+                            e.preventDefault();
+                            document.execCommand('underline', false, null);
+                            updateButtonStates();
+                            break;
+                    }
+                }
+            });
+            
+            // Focus management and button state updates
+            content.addEventListener('focus', function() {
+                updateButtonStates();
+            });
+            
+            content.addEventListener('keyup', function() {
+                updateButtonStates();
+            });
+            
+            content.addEventListener('mouseup', function() {
+                updateButtonStates();
+            });
+            
+            content.addEventListener('input', function() {
+                updateButtonStates();
+            });
+            
+            function updateButtonStates() {
+                const buttons = toolbar.querySelectorAll('button[data-command]');
+                buttons.forEach(btn => {
+                    const command = btn.getAttribute('data-command');
+                    if (['bold', 'italic', 'underline', 'strikeThrough'].includes(command)) {
+                        btn.classList.toggle('active', document.queryCommandState(command));
+                    }
+                });
+            }
+            
+            function createToolbarButton(icon, title, command) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.innerHTML = icon;
+                button.title = title;
+                button.setAttribute('data-command', command);
+                
+                button.onclick = function(e) {
+                    e.preventDefault();
+                    content.focus();
+                    
+                    if (command === 'createLink') {
+                        const url = prompt('Enter URL:');
+                        if (url) {
+                            document.execCommand('createLink', false, url);
+                        }
+                    } else {
+                        document.execCommand(command, false, null);
+                    }
+                    updateButtonStates();
+                };
+                
+                return button;
+            }
+            
+            function createSeparator() {
+                const separator = document.createElement('div');
+                separator.className = 'separator';
+                return separator;
+            }
+            
+            function createImageUploadButton(icon, title) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.innerHTML = icon;
+                button.title = title;
+                
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = 'image/*';
+                fileInput.style.display = 'none';
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'file-upload';
+                wrapper.appendChild(button);
+                wrapper.appendChild(fileInput);
+                
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = `<img src="${e.target.result}" alt="Uploaded image" style="max-width: 100%; height: auto;">`;
+                            document.execCommand('insertHTML', false, img);
+                            content.focus();
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+                
+                button.onclick = function(e) {
+                    e.preventDefault();
+                    fileInput.click();
+                };
+                
+                return wrapper;
+            }
+            
+            function createEmojiPickerButton(icon, title) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.innerHTML = icon;
+                button.title = title;
+                
+                const emojiList = document.createElement('div');
+                emojiList.className = 'emoji-list';
+                
+                console.log('Creating emoji picker with', commonEmojis.length, 'emojis');
+                
+                commonEmojis.forEach((emoji, index) => {
+                    const emojiItem = document.createElement('div');
+                    emojiItem.className = 'emoji-item';
+                    emojiItem.innerHTML = emoji;
+                    emojiItem.style.cursor = 'pointer';
+                    emojiItem.style.padding = '8px';
+                    emojiItem.style.borderRadius = '4px';
+                    emojiItem.style.fontSize = '1.2rem';
+                    emojiItem.style.textAlign = 'center';
+                    emojiItem.style.transition = 'background-color 0.2s';
+                    emojiItem.setAttribute('data-emoji', emoji);
+                    
+                    emojiItem.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Emoji clicked:', emoji);
+                        document.execCommand('insertText', false, emoji);
+                        emojiList.classList.remove('show');
+                        content.focus();
+                    });
+                    
+                    emojiItem.addEventListener('mouseenter', function() {
+                        this.style.backgroundColor = '#f0f0f0';
+                    });
+                    
+                    emojiItem.addEventListener('mouseleave', function() {
+                        this.style.backgroundColor = 'transparent';
+                    });
+                    
+                    emojiList.appendChild(emojiItem);
+                });
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'emoji-picker';
+                wrapper.style.position = 'relative';
+                wrapper.appendChild(button);
+                wrapper.appendChild(emojiList);
+                
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Emoji button clicked, toggling picker');
+                    emojiList.classList.toggle('show');
+                    content.focus();
+                });
+                
+                // Close emoji picker when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!wrapper.contains(e.target)) {
+                        emojiList.classList.remove('show');
+                    }
+                });
+                
+                // Prevent emoji list clicks from closing the picker
+                emojiList.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+                
+                console.log('Emoji picker created successfully');
+                return wrapper;
+            }
+        }
+        
+        // Initialize existing rich text editors
+        document.querySelectorAll('.rich-text-editor').forEach(initRichTextEditor);
+        
+        // Initialize dynamically added editors
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) { // Element node
+                        if (node.classList && node.classList.contains('rich-text-editor')) {
+                            initRichTextEditor(node);
+                        } else {
+                            node.querySelectorAll('.rich-text-editor').forEach(initRichTextEditor);
+                        }
+                    }
+                });
+            });
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

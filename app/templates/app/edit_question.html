@@ -1,0 +1,170 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Edit Question - StackIt{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tag-input {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 8px;
+        min-height: 38px;
+    }
+    .tag {
+        display: inline-block;
+        background: #007bff;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin: 2px;
+        font-size: 12px;
+    }
+    .tag .remove {
+        margin-left: 5px;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Edit Question</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <!-- Title -->
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.title.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        <div class="rich-text-editor">
+                            {{ form.description }}
+                        </div>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.description.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Tags -->
+                    <div class="mb-3">
+                        <label for="tags" class="form-label">Tags</label>
+                        <div class="tag-input" id="tag-input" contenteditable="true">
+                            {% for tag in question.tags.all %}
+                            <span class="tag">{{ tag.name }}<span class="remove" data-tag="{{ tag.name }}">&times;</span></span>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="tags" id="tags-input" value="{{ form.tags.value|default:'' }}">
+                        {% if form.tags.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.tags.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ question.get_absolute_url }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update Question</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Tag input functionality
+    var tags = [];
+    var tagInput = $('#tag-input');
+    
+    // Initialize tags from existing content
+    tagInput.find('.tag').each(function() {
+        var tagName = $(this).text().replace('×', '').trim();
+        tags.push(tagName);
+    });
+    
+    tagInput.on('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            var tag = $(this).text().trim();
+            if (tag && tags.length < 5) {
+                addTag(tag);
+                $(this).text('');
+            }
+        }
+    });
+    
+    function addTag(tagName) {
+        if (tags.indexOf(tagName) === -1 && tags.length < 5) {
+            tags.push(tagName);
+            renderTags();
+        }
+    }
+    
+    function removeTag(tagName) {
+        var index = tags.indexOf(tagName);
+        if (index > -1) {
+            tags.splice(index, 1);
+            renderTags();
+        }
+    }
+    
+    function renderTags() {
+        var html = '';
+        tags.forEach(function(tag) {
+            html += '<span class="tag">' + tag + '<span class="remove" data-tag="' + tag + '">&times;</span></span>';
+        });
+        tagInput.html(html);
+        updateTagsInput();
+    }
+    
+    function updateTagsInput() {
+        $('#tags-input').val(tags.join(','));
+    }
+    
+    // Remove tag when X is clicked
+    tagInput.on('click', '.remove', function() {
+        var tag = $(this).data('tag');
+        removeTag(tag);
+    });
+    
+    // Focus on tag input when clicked
+    tagInput.on('click', function() {
+        if (tags.length === 0) {
+            $(this).focus();
+        }
+    });
+    
+    // Update tags input when form is submitted
+    $('form').submit(function() {
+        updateTagsInput();
+    });
+});
+</script>
+{% endblock %} 

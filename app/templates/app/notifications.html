@@ -1,0 +1,37 @@
+                    {% for notification in notifications %}
+                    <div class="notification-item {% if not notification.is_read %}unread{% endif %}" 
+                         data-notification-id="{{ notification.id }}"
+                         data-target-url="{{ notification.get_target_url }}">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                                {% if notification.sender %}
+                                    {% if notification.sender.profile.avatar %}
+                                    <img src="{{ notification.sender.profile.avatar.url }}" alt="{{ notification.sender.username }}" class="rounded-circle" width="40" height="40">
+                                    {% else %}
+                                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-bell text-white"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="mb-1">{{ notification.message }}</p>
+                                <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                            </div>
+                            {% if not notification.is_read %}
+                            <div class="flex-shrink-0">
+                                <span class="badge bg-primary">New</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-bell-slash fa-2x text-muted mb-3"></i>
+                        <p class="text-muted">No notifications yet.</p>
+                    </div>
+                    {% endfor %} 

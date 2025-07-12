@@ -1,0 +1,79 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - StackIt{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Edit Profile</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Avatar -->
+                    <div class="mb-3">
+                        <label for="{{ form.avatar.id_for_label }}" class="form-label">Profile Picture</label>
+                        {% if user.profile.avatar %}
+                        <div class="mb-2">
+                            <img src="{{ user.profile.avatar.url }}" alt="Current avatar" class="rounded-circle" width="100" height="100">
+                        </div>
+                        {% endif %}
+                        {{ form.avatar }}
+                        {% if form.avatar.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.avatar.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Upload a profile picture (recommended size: 200x200px)</small>
+                    </div>
+                    
+                    <!-- Background Image -->
+                    <div class="mb-3">
+                        <label for="{{ form.background_image.id_for_label }}" class="form-label">Background Image</label>
+                        {% if user.profile.background_image %}
+                        <div class="mb-2">
+                            <img src="{{ user.profile.background_image.url }}" alt="Current background" class="img-fluid rounded" style="max-height: 150px;">
+                        </div>
+                        {% endif %}
+                        {{ form.background_image }}
+                        {% if form.background_image.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.background_image.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Upload a background image for your profile (recommended size: 1200x400px)</small>
+                    </div>
+                    
+                    <!-- Bio -->
+                    <div class="mb-3">
+                        <label for="{{ form.bio.id_for_label }}" class="form-label">Bio</label>
+                        {{ form.bio }}
+                        {% if form.bio.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.bio.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Tell us about yourself (max 500 characters)</small>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'profile' user.username %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

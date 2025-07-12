@@ -1,0 +1,46 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Edit Answer - StackIt{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Edit Answer</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h5>Question: <a href="{{ answer.question.get_absolute_url }}">{{ answer.question.title }}</a></h5>
+                </div>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <!-- Content -->
+                    <div class="mb-3">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">Answer</label>
+                        <div class="rich-text-editor">
+                            {{ form.content }}
+                        </div>
+                        {% if form.content.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.content.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ answer.question.get_absolute_url }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update Answer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

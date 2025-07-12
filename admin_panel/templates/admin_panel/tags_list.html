@@ -1,0 +1,181 @@
+{% extends 'app/base.html' %}
+
+{% block title %}Manage Tags{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-tags"></i> Manage Tags</h1>
+                <a href="{% url 'admin_panel:dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Create New Tag -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus"></i> Create New Tag
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'admin_panel:create_tag' %}">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="tag_name" class="form-label">Tag Name</label>
+                                <input type="text" class="form-control" id="tag_name" name="name" 
+                                       placeholder="Enter tag name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="tag_description" class="form-label">Description</label>
+                                <input type="text" class="form-control" id="tag_description" name="description" 
+                                       placeholder="Enter tag description (optional)">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">&nbsp;</label>
+                                <div>
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="fas fa-plus"></i> Create
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-10">
+                            <label for="search" class="form-label">Search Tags</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   value="{{ search }}" placeholder="Search by tag name or description...">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tags List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Tags ({{ tags.count }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if tags %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tag Name</th>
+                                        <th>Description</th>
+                                        <th>Questions</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for tag in tags %}
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-primary fs-6">{{ tag.name }}</span>
+                                            </td>
+                                            <td>
+                                                {% if tag.description %}
+                                                    {{ tag.description|truncatechars:50 }}
+                                                {% else %}
+                                                    <span class="text-muted">No description</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">{{ tag.question_count }}</span>
+                                            </td>
+                                            <td>{{ tag.created_at|timesince }} ago</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                            data-bs-toggle="modal" data-bs-target="#editTagModal{{ tag.id }}">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </button>
+                                                    <form method="post" action="{% url 'admin_panel:delete_tag' tag.pk %}" 
+                                                          style="display: inline;">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                                onclick="return confirm('Are you sure you want to delete the tag \"{{ tag.name }}\"? This will remove it from all questions.')">
+                                                            <i class="fas fa-trash"></i> Delete
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No tags found</h5>
+                            <p class="text-muted">Create your first tag above or try adjusting your search criteria</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Tag Modals -->
+{% for tag in tags %}
+<div class="modal fade" id="editTagModal{{ tag.id }}" tabindex="-1" aria-labelledby="editTagModalLabel{{ tag.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editTagModalLabel{{ tag.id }}">Edit Tag: {{ tag.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'admin_panel:edit_tag' tag.pk %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_name_{{ tag.id }}" class="form-label">Tag Name</label>
+                        <input type="text" class="form-control" id="edit_name_{{ tag.id }}" name="name" 
+                               value="{{ tag.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_description_{{ tag.id }}" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="edit_description_{{ tag.id }}" name="description" 
+                               value="{{ tag.description }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %} 

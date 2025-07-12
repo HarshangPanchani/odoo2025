@@ -1,0 +1,380 @@
+/* Custom styles for StackIt Q&A Platform */
+
+/* General Styles */
+body {
+    background-color: #f8f9fa;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Navigation */
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.navbar-nav .nav-link {
+    font-weight: 500;
+}
+
+/* Cards */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #e9ecef;
+    font-weight: 600;
+}
+
+/* Question Cards */
+.question-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.question-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Stats */
+.stats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+.stat-number {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #495057;
+    display: block;
+}
+
+/* Voting */
+.voting {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.vote-btn {
+    border: none;
+    background: transparent;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.vote-btn:hover {
+    background-color: #e9ecef;
+}
+
+.vote-btn.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.vote-count {
+    font-weight: 600;
+    color: #495057;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* Answer Cards */
+.answer-card {
+    border-left: 4px solid #e9ecef;
+}
+
+.answer-card.border-success {
+    border-left-color: #28a745;
+}
+
+/* Comments */
+.comments-section {
+    background-color: #f8f9fa;
+    padding: 12px;
+    border-radius: 4px;
+    margin-top: 12px;
+}
+
+.comment {
+    padding: 4px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.comment:last-child {
+    border-bottom: none;
+}
+
+/* Tags */
+.badge {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.badge.bg-secondary {
+    background-color: #6c757d !important;
+}
+
+/* Forms */
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 8px 16px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-outline-primary {
+    color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary.active {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* Pagination */
+.pagination .page-link {
+    border: none;
+    color: #007bff;
+    padding: 8px 12px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* Profile */
+.profile-header {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid white;
+    object-fit: cover;
+}
+
+/* Notifications */
+.notification-item {
+    padding: 12px;
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+
+.notification-item.unread {
+    background-color: #e3f2fd;
+}
+
+/* Rich Text Editor */
+.ql-editor {
+    font-family: inherit;
+    line-height: 1.6;
+}
+
+.ql-toolbar {
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-radius: 4px 4px 0 0;
+}
+
+.ql-container {
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-radius: 0 0 4px 4px;
+}
+
+/* Tag Input */
+.tag-input {
+    background-color: white;
+    transition: border-color 0.2s ease;
+}
+
+.tag-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.tag {
+    background-color: #007bff !important;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    margin: 2px;
+    font-size: 12px;
+    display: inline-block;
+}
+
+.tag .remove {
+    margin-left: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.tag .remove:hover {
+    opacity: 0.8;
+}
+
+/* Admin Dashboard */
+.admin-stats {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.admin-stat {
+    text-align: center;
+}
+
+.admin-stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    display: block;
+}
+
+.admin-stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .stats {
+        flex-direction: row;
+        justify-content: space-around;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-item {
+        flex: 1;
+        margin: 0 4px;
+    }
+    
+    .voting {
+        flex-direction: row;
+        gap: 8px;
+    }
+    
+    .vote-count {
+        min-width: 20px;
+    }
+    
+    .question-card .row {
+        flex-direction: column;
+    }
+    
+    .question-card .col-md-2 {
+        order: 2;
+        margin-top: 1rem;
+    }
+    
+    .question-card .col-md-10 {
+        order: 1;
+    }
+}
+
+/* Loading States */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Utility Classes */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.transition-all {
+    transition: all 0.2s ease;
+} 

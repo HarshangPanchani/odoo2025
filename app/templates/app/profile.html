@@ -1,0 +1,323 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}{{ profile_user.username }}'s Profile - StackIt{% endblock %}
+
+{% block content %}
+<!-- Profile Header -->
+<div class="profile-header" {% if profile_user.profile.background_image %}style="background-image: url('{{ profile_user.profile.background_image.url }}');"{% endif %}>
+    <div class="profile-header-overlay">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-3 text-center">
+                    {% if profile_user.profile.avatar %}
+                        <img src="{{ profile_user.profile.avatar.url }}" alt="{{ profile_user.username }}" class="profile-avatar">
+                    {% else %}
+                        <div class="profile-avatar bg-light d-flex align-items-center justify-content-center">
+                            <i class="fas fa-user fa-3x text-muted"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-9">
+                    <h1 class="h2 mb-2">{{ profile_user.username }}</h1>
+                    
+                    {% if profile_user.profile.is_premium %}
+                    <span class="badge bg-warning mb-2">
+                        <i class="fas fa-crown"></i> Premium User
+                    </span>
+                    {% endif %}
+                    
+                    {% if profile_user.profile.bio %}
+                        <p class="mb-3 bio-content">{{ profile_user.profile.bio }}</p>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="stat">
+                                <div class="stat-number">{{ questions.count }}</div>
+                                <small>Questions</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat">
+                                <div class="stat-number">{{ answers.count }}</div>
+                                <small>Answers</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat">
+                                <div class="stat-number">{{ profile_user.profile.reputation }}</div>
+                                <small>Reputation</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat">
+                                <div class="stat-number follower-count">{{ profile_user.profile.follower_count }}</div>
+                                <small>Followers</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Follow/Unfollow Button -->
+                    {% if user != profile_user and user.is_authenticated %}
+                    <div class="mt-3">
+                        {% if is_following %}
+                        <a href="{% url 'follow_user' profile_user.username %}" class="btn btn-outline-light me-2 follow-btn">
+                            <i class="fas fa-user-minus"></i> Unfollow
+                        </a>
+                        {% else %}
+                        <a href="{% url 'follow_user' profile_user.username %}" class="btn btn-primary me-2 follow-btn">
+                            <i class="fas fa-user-plus"></i> Follow
+                        </a>
+                        {% endif %}
+                        
+                        <a href="{% url 'followers_list' profile_user.username %}" class="btn btn-sm btn-outline-light me-1">
+                            {{ profile_user.profile.follower_count }} Followers
+                        </a>
+                        <a href="{% url 'following_list' profile_user.username %}" class="btn btn-sm btn-outline-light">
+                            {{ profile_user.profile.following_count }} Following
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if user == profile_user %}
+                    <div class="mt-3">
+                        <a href="{% url 'edit_profile' %}" class="btn btn-outline-light">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Content -->
+<div class="container">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Questions -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Questions</h5>
+                    <span class="badge bg-primary">{{ questions.count }}</span>
+                </div>
+                <div class="card-body">
+                    {% if questions %}
+                        {% for question in questions %}
+                        <div class="question-item mb-3 pb-3 border-bottom">
+                            <h6 class="mb-1">
+                                <a href="{{ question.get_absolute_url }}" class="text-decoration-none">
+                                    {{ question.title }}
+                                </a>
+                            </h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    {{ question.created_at|timesince }} ago
+                                </small>
+                                <div class="stats-small">
+                                    <span class="badge bg-secondary me-1">{{ question.vote_count }} votes</span>
+                                    <span class="badge bg-info">{{ question.answer_count }} answers</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% if questions.count > 10 %}
+                        <div class="text-center">
+                            <a href="#" class="btn btn-outline-primary">View All Questions</a>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted text-center py-3">No questions yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Answers -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Answers</h5>
+                    <span class="badge bg-primary">{{ answers.count }}</span>
+                </div>
+                <div class="card-body">
+                    {% if answers %}
+                        {% for answer in answers %}
+                        <div class="answer-item mb-3 pb-3 border-bottom">
+                            <h6 class="mb-1">
+                                <a href="{{ answer.question.get_absolute_url }}" class="text-decoration-none">
+                                    {{ answer.question.title }}
+                                </a>
+                            </h6>
+                            <p class="text-muted mb-2">
+                                {{ answer.content|truncatewords:20|striptags }}
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    {{ answer.created_at|timesince }} ago
+                                </small>
+                                <div class="stats-small">
+                                    <span class="badge bg-secondary me-1">{{ answer.vote_count }} votes</span>
+                                    {% if answer.is_accepted %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>Accepted
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% if answers.count > 10 %}
+                        <div class="text-center">
+                            <a href="#" class="btn btn-outline-primary">View All Answers</a>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted text-center py-3">No answers yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- User Info -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">User Information</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-calendar me-2 text-muted"></i>
+                            Joined {{ profile_user.date_joined|date:"F Y" }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-clock me-2 text-muted"></i>
+                            Last seen {{ profile_user.last_login|timesince }} ago
+                        </li>
+                        {% if profile_user.profile.reputation > 0 %}
+                        <li class="mb-2">
+                            <i class="fas fa-star me-2 text-warning"></i>
+                            {{ profile_user.profile.reputation }} reputation
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for question in questions|slice:":5" %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <small class="text-muted">{{ question.created_at|timesince }} ago</small>
+                                <p class="mb-0">Asked: {{ question.title|truncatechars:40 }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% for answer in answers|slice:":5" %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <small class="text-muted">{{ answer.created_at|timesince }} ago</small>
+                                <p class="mb-0">Answered: {{ answer.question.title|truncatechars:40 }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Badges -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Badges</h5>
+                </div>
+                <div class="card-body">
+                    {% if profile_user.profile.reputation >= 100 %}
+                    <div class="badge-item mb-2">
+                        <i class="fas fa-medal text-warning me-2"></i>
+                        <span>Gold Member</span>
+                    </div>
+                    {% endif %}
+                    {% if questions.count >= 10 %}
+                    <div class="badge-item mb-2">
+                        <i class="fas fa-question-circle text-primary me-2"></i>
+                        <span>Question Master</span>
+                    </div>
+                    {% endif %}
+                    {% if answers.count >= 20 %}
+                    <div class="badge-item mb-2">
+                        <i class="fas fa-lightbulb text-success me-2"></i>
+                        <span>Helpful Contributor</span>
+                    </div>
+                    {% endif %}
+                    {% if profile_user.profile.reputation < 100 and questions.count < 10 and answers.count < 20 %}
+                    <p class="text-muted text-center">No badges yet. Keep contributing!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.timeline {
+    position: relative;
+    padding-left: 20px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -20px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #007bff;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #e9ecef;
+}
+
+.timeline-content {
+    padding-left: 10px;
+}
+
+.badge-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.stats-small .badge {
+    font-size: 0.7rem;
+}
+</style>
+{% endblock %} 

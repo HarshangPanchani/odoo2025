@@ -1,0 +1,110 @@
+{% load app_extras %}
+
+{% for answer in answers %}
+<div class="answer-item border rounded p-3 mb-3" id="answer-{{ answer.id }}">
+    <div class="row">
+        <!-- Voting -->
+        <div class="col-md-1 text-center">
+            <div class="vote-section">
+                <button class="btn btn-sm btn-outline-primary vote-btn {% if user_answer_votes|get_item:answer.id == 1 %}btn-primary{% endif %}" data-type="answer" data-id="{{ answer.id }}" data-vote="1">
+                    <i class="fas fa-chevron-up"></i>
+                </button>
+                <div class="vote-count mt-1 mb-1" id="answer-vote-count-{{ answer.id }}">{{ answer.vote_count }}</div>
+                <button class="btn btn-sm btn-outline-primary vote-btn {% if user_answer_votes|get_item:answer.id == -1 %}btn-primary{% endif %}" data-type="answer" data-id="{{ answer.id }}" data-vote="-1">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Answer Content -->
+        <div class="col-md-11">
+            <div class="answer-content mb-3">
+                {{ answer.content|safe }}
+            </div>
+            
+            <!-- Meta -->
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    {% if answer.is_main_answer %}
+                        Answered {{ answer.created_at|timesince }} ago by 
+                    {% else %}
+                        Commented {{ answer.created_at|timesince }} ago by 
+                    {% endif %}
+                    <a href="{% url 'profile' answer.author.username %}" class="text-decoration-none">
+                        {{ answer.author.username }}
+                    </a>
+                </small>
+                <div class="btn-group btn-group-sm">
+                    {% if user == answer.author %}
+                    <a href="{% url 'edit_answer' answer.pk %}" class="btn btn-outline-secondary">Edit</a>
+                    <a href="{% url 'delete_answer' answer.pk %}" class="btn btn-outline-danger">Delete</a>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    <button type="button" class="btn btn-outline-primary reply-btn" data-answer-id="{{ answer.pk }}" data-username="{{ answer.author.username }}">
+                        Reply
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Reply form (hidden by default) -->
+            {% if user.is_authenticated %}
+            <div class="reply-form mt-3" id="reply-form-{{ answer.pk }}" style="display: none;">
+                <form method="POST" action="{% url 'post_answer' answer.question.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="parent" value="{{ answer.pk }}">
+                    <div class="mb-2">
+                        <div class="rich-text-editor">
+                            <textarea class="form-control" name="content" rows="3" placeholder="Reply to @{{ answer.author.username }}..."></textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-sm btn-secondary cancel-reply" data-answer-id="{{ answer.pk }}">Cancel</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Reply</button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+            
+            <!-- Show replies button (for all answers that can have replies) -->
+            {% if answer.reply_count > 0 %}
+            <div class="mt-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary view-replies-btn" data-answer-id="{{ answer.pk }}" data-reply-count="{{ answer.reply_count }}">
+                    <i class="fas fa-comments me-1"></i>
+                    View {{ answer.reply_count }} repl{{ answer.reply_count|pluralize:"y,ies" }}
+                </button>
+            </div>
+            {% elif answer.is_main_answer %}
+            <div class="mt-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary view-replies-btn" data-answer-id="{{ answer.pk }}" data-reply-count="0">
+                    <i class="fas fa-comments me-1"></i>
+                    View replies
+                </button>
+            </div>
+            {% endif %}
+            
+
+        </div>
+    </div>
+    
+    <!-- Replies container (hidden by default) -->
+    {% if answer.reply_count > 0 %}
+    <div class="replies-container mt-3" id="replies-{{ answer.pk }}" style="display: none;">
+        <div class="replies-indent">
+            {% with answers=answer.replies.all user_answer_votes=user_answer_votes %}
+                {% include "app/answer_tree.html" %}
+            {% endwith %}
+        </div>
+    </div>
+    {% elif answer.is_main_answer %}
+    <!-- Empty replies container for main answers without replies -->
+    <div class="replies-container mt-3" id="replies-{{ answer.pk }}" style="display: none;">
+        <div class="replies-indent">
+            <div class="text-center py-3">
+                <p class="text-muted mb-0">No replies yet. Be the first to reply!</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endfor %} 

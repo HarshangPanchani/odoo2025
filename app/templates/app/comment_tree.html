@@ -1,0 +1,54 @@
+{% load app_extras %}
+
+{% for comment in comments %}
+<div class="comment-thread" id="comment-{{ comment.id }}">
+    <div class="comment mb-3" style="margin-left: {{ comment.depth|multiply:20 }}px;">
+        <div class="comment-content p-3 border rounded">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <div class="comment-text mb-2">
+                        {{ comment.content|safe|linebreaks }}
+                    </div>
+                    <div class="comment-meta">
+                        <small class="text-muted">
+                            <a href="{% url 'profile' comment.author.username %}" class="text-decoration-none">
+                                {{ comment.author.username }}
+                            </a>
+                            {{ comment.created_at|timesince }} ago
+                        </small>
+                        {% if user.is_authenticated %}
+                        <button class="btn btn-sm btn-link reply-btn" data-comment-id="{{ comment.id }}" data-username="{{ comment.author.username }}">
+                            Reply
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reply form (hidden by default) -->
+            {% if user.is_authenticated %}
+            <div class="reply-form mt-3" id="reply-form-{{ comment.id }}" style="display: none;">
+                <form method="POST" action="{% if comment.question %}{% url 'post_question_comment' comment.question.pk %}{% else %}{% url 'post_comment' comment.answer.pk %}{% endif %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="parent" value="{{ comment.id }}">
+                    <div class="mb-2">
+                        <textarea class="form-control" name="content" rows="2" placeholder="Reply to @{{ comment.author.username }}..."></textarea>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-sm btn-secondary cancel-reply" data-comment-id="{{ comment.id }}">Cancel</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Reply</button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Recursively render replies -->
+    {% if comment.replies.all %}
+        {% with comments=comment.replies.all %}
+            {% include "app/comment_tree.html" %}
+        {% endwith %}
+    {% endif %}
+</div>
+{% endfor %} 

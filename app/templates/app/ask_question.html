@@ -1,0 +1,210 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Ask Question - StackIt{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tag-input {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 8px;
+        min-height: 38px;
+    }
+    .tag {
+        display: inline-block;
+        background: #007bff;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin: 2px;
+        font-size: 12px;
+    }
+    .tag .remove {
+        margin-left: 5px;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Ask a Question</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <!-- Title -->
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.title.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Be specific and imagine you're asking another person
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        <div class="rich-text-editor">
+                            {{ form.description }}
+                        </div>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.description.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Describe your question in detail. Use the toolbar above for formatting.
+                        </div>
+                    </div>
+                    
+                    <!-- Image Upload -->
+                    <div class="mb-3">
+                        <label for="{{ form.image.id_for_label }}" class="form-label">Image (Optional)</label>
+                        {{ form.image }}
+                        {% if form.image.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.image.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Upload an image to help explain your question (max 5MB)</small>
+                    </div>
+                    
+                    <!-- Tags -->
+                    <div class="mb-3">
+                        <label for="tags" class="form-label">Tags</label>
+                        <div class="tag-input" id="tag-input" contenteditable="true"></div>
+                        <input type="hidden" name="tags" id="tags-input">
+                        {% if form.tags.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.tags.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Add up to 5 tags to describe what your question is about
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Post Question</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Help Section -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Writing a Good Question</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Be specific:</strong> Include details about your problem
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Show your work:</strong> Share what you've tried so far
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Use clear language:</strong> Write in a way that's easy to understand
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        <strong>Add relevant tags:</strong> Help others find your question
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Tag input functionality
+    var tags = [];
+    var tagInput = $('#tag-input');
+    
+    tagInput.on('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            var tag = $(this).text().trim();
+            if (tag && tags.length < 5) {
+                addTag(tag);
+                $(this).text('');
+            }
+        }
+    });
+    
+    function addTag(tagName) {
+        if (tags.indexOf(tagName) === -1 && tags.length < 5) {
+            tags.push(tagName);
+            renderTags();
+        }
+    }
+    
+    function removeTag(tagName) {
+        var index = tags.indexOf(tagName);
+        if (index > -1) {
+            tags.splice(index, 1);
+            renderTags();
+        }
+    }
+    
+    function renderTags() {
+        var html = '';
+        tags.forEach(function(tag) {
+            html += '<span class="tag">' + tag + '<span class="remove" data-tag="' + tag + '">&times;</span></span>';
+        });
+        tagInput.html(html);
+        updateTagsInput();
+    }
+    
+    function updateTagsInput() {
+        $('#tags-input').val(tags.join(','));
+    }
+    
+    // Remove tag when X is clicked
+    tagInput.on('click', '.remove', function() {
+        var tag = $(this).data('tag');
+        removeTag(tag);
+    });
+    
+    // Focus on tag input when clicked
+    tagInput.on('click', function() {
+        if (tags.length === 0) {
+            $(this).focus();
+        }
+    });
+    
+    // Update tags input when form is submitted
+    $('form').submit(function() {
+        updateTagsInput();
+    });
+});
+</script>
+{% endblock %} 

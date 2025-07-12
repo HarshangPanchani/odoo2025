@@ -1,0 +1,56 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - StackIt{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">{{ title }}</h3>
+                </div>
+                <div class="card-body">
+                    {% if following %}
+                        {% for followed_user in following %}
+                        <div class="d-flex align-items-center mb-3 p-3 border rounded">
+                            <div class="flex-shrink-0 me-3">
+                                {% if followed_user.profile.avatar %}
+                                <img src="{{ followed_user.profile.avatar.url }}" alt="{{ followed_user.username }}" class="rounded-circle" width="50" height="50">
+                                {% else %}
+                                <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">
+                                    <a href="{% url 'profile' followed_user.username %}" class="text-decoration-none">
+                                        {{ followed_user.username }}
+                                    </a>
+                                </h6>
+                                {% if followed_user.profile.bio %}
+                                <p class="text-muted mb-0 small">{{ followed_user.profile.bio|truncatechars:100 }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="flex-shrink-0">
+                                <a href="{% url 'profile' followed_user.username %}" class="btn btn-sm btn-outline-primary">
+                                    View Profile
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5>Not following anyone yet</h5>
+                            <p class="text-muted">{{ profile_user.username }} isn't following anyone yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

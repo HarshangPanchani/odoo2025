@@ -1,0 +1,191 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% load app_extras %}
+
+{% block title %}{{ question.title }} - StackIt{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Question -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <!-- Voting -->
+                    <div class="col-md-1 text-center">
+                        <div class="voting">
+                            <button class="btn btn-sm btn-outline-secondary vote-btn {% if user_question_vote and user_question_vote.vote_type == 1 %}btn-primary{% endif %}" 
+                                    data-type="question" data-id="{{ question.pk }}" data-vote="1">
+                                <i class="fas fa-caret-up"></i>
+                            </button>
+                            <div class="vote-count" id="question-vote-count">{{ question.vote_count }}</div>
+                            <button class="btn btn-sm btn-outline-secondary vote-btn {% if user_question_vote and user_question_vote.vote_type == -1 %}btn-primary{% endif %}" 
+                                    data-type="question" data-id="{{ question.pk }}" data-vote="-1">
+                                <i class="fas fa-caret-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Question Content -->
+                    <div class="col-md-11">
+                        <h1 class="h3 mb-3">{{ question.title }}</h1>
+                        
+                        <div class="question-content mb-3">
+                            {{ question.description|safe }}
+                        </div>
+                        
+                        <!-- Question Image -->
+                        {% if question.image %}
+                        <div class="question-image mb-3">
+                            <img src="{{ question.image.url }}" alt="Question image" class="img-fluid rounded" style="max-width: 100%; max-height: 400px;">
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Tags -->
+                        <div class="mb-3">
+                            {% for tag in question.tags.all %}
+                            <a href="{% url 'tag_detail' tag.pk %}" class="badge bg-secondary text-decoration-none me-1">
+                                {{ tag.name }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Meta -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                Asked {{ question.created_at|timesince }} ago by 
+                                <a href="{% url 'profile' question.author.username %}" class="text-decoration-none">
+                                    {{ question.author.username }}
+                                </a>
+                                • {{ question.views }} views
+                            </small>
+                            {% if user == question.author %}
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'edit_question' question.pk %}" class="btn btn-outline-secondary">Edit</a>
+                                <a href="{% url 'delete_question' question.pk %}" class="btn btn-outline-danger">Delete</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Responses -->
+        <div class="responses-section">
+            <h3 class="mb-3">
+                {{ total_main_answers }} Response{{ total_main_answers|pluralize }}
+            </h3>
+            
+            {% if all_responses %}
+                {% with answers=all_responses user_answer_votes=user_answer_votes %}
+                    {% include "app/answer_tree.html" %}
+                {% endwith %}
+                
+                <!-- Show more comments button -->
+                {% if has_more_comments %}
+                <div class="text-center mt-4">
+                    <a href="?show_all=true" class="btn btn-outline-primary">
+                        <i class="fas fa-chevron-down me-2"></i>
+                        Show {{ total_main_answers|add:"-2" }} more comment{{ total_main_answers|add:"-2"|pluralize }}
+                    </a>
+                </div>
+                {% endif %}
+                
+                <!-- Show less button when showing all -->
+                {% if show_all and total_main_answers > 2 %}
+                <div class="text-center mt-4">
+                    <a href="?" class="btn btn-outline-secondary">
+                        <i class="fas fa-chevron-up me-2"></i>
+                        Show less
+                    </a>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted">No responses yet. Be the first to respond!</p>
+                </div>
+            {% endif %}
+            
+            <!-- Add Response -->
+            {% if user.is_authenticated %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Add Your Response</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'post_answer' question.pk %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <div class="rich-text-editor">
+                                {{ answer_form.content }}
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Post Response</button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="card mt-4">
+                <div class="card-body text-center">
+                    <p>Please <a href="{% url 'login' %}">log in</a> to post a response.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Question Stats -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Question Stats</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="stat">
+                            <div class="stat-number">{{ question.vote_count }}</div>
+                            <small class="text-muted">votes</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat">
+                            <div class="stat-number">{{ question.answer_count }}</div>
+                            <small class="text-muted">answers</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat">
+                            <div class="stat-number">{{ question.views }}</div>
+                            <small class="text-muted">views</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Questions -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Related Questions</h5>
+            </div>
+            <div class="card-body">
+                {% for tag in question.tags.all %}
+                    {% for related_question in tag.questions.all|slice:":3" %}
+                        {% if related_question != question %}
+                        <div class="mb-2">
+                            <a href="{{ related_question.get_absolute_url }}" class="text-decoration-none">
+                                {{ related_question.title|truncatechars:50 }}
+                            </a>
+                            <small class="text-muted d-block">{{ related_question.answer_count }} answers</small>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

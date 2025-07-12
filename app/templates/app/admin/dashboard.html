@@ -1,0 +1,272 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - StackIt{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<div class="admin-stats">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="admin-stat">
+                    <span class="admin-stat-number">{{ total_users }}</span>
+                    <div class="admin-stat-label">Total Users</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-stat">
+                    <span class="admin-stat-number">{{ total_questions }}</span>
+                    <div class="admin-stat-label">Total Questions</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-stat">
+                    <span class="admin-stat-number">{{ total_answers }}</span>
+                    <div class="admin-stat-label">Total Answers</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="admin-stat">
+                    <span class="admin-stat-number">{{ pending_questions }}</span>
+                    <div class="admin-stat-label">Pending Questions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Recent Questions -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Questions</h5>
+                    <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if questions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for question in questions %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ question.get_absolute_url }}" class="text-decoration-none">
+                                                {{ question.title|truncatechars:50 }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'profile' question.author.username %}" class="text-decoration-none">
+                                                {{ question.author.username }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {% if question.is_active %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ question.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'admin_moderate_question' question.pk %}" 
+                                                   class="btn btn-outline-secondary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                {% if question.author.profile.is_banned %}
+                                                    <span class="btn btn-outline-danger disabled">
+                                                        <i class="fas fa-ban"></i>
+                                                    </span>
+                                                {% else %}
+                                                    <a href="{% url 'admin_ban_user' question.author.pk %}" 
+                                                       class="btn btn-outline-danger"
+                                                       onclick="return confirm('Are you sure you want to ban this user?')">
+                                                        <i class="fas fa-ban"></i>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">No questions found.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for question in questions|slice:":10" %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between">
+                                    <span>
+                                        <strong>{{ question.author.username }}</strong> asked a question
+                                    </span>
+                                    <small class="text-muted">{{ question.created_at|timesince }} ago</small>
+                                </div>
+                                <p class="mb-0">{{ question.title|truncatechars:60 }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="#" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-2"></i>Create Tag
+                        </a>
+                        <a href="#" class="btn btn-outline-secondary">
+                            <i class="fas fa-download me-2"></i>Export Data
+                        </a>
+                        <a href="#" class="btn btn-outline-info">
+                            <i class="fas fa-chart-bar me-2"></i>View Analytics
+                        </a>
+                        <a href="#" class="btn btn-outline-warning">
+                            <i class="fas fa-cog me-2"></i>Site Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Banned Users -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Banned Users</h5>
+                </div>
+                <div class="card-body">
+                    {% for user in banned_users %}
+                    <div class="banned-user-item d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                        <span>{{ user.username }}</span>
+                        <a href="{% url 'admin_unban_user' user.pk %}" 
+                           class="btn btn-sm btn-outline-success"
+                           onclick="return confirm('Unban this user?')">
+                            <i class="fas fa-user-check"></i>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center">No banned users.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- System Info -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">System Information</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-server me-2 text-muted"></i>
+                            Django {{ django_version }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-database me-2 text-muted"></i>
+                            SQLite Database
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-clock me-2 text-muted"></i>
+                            Server Time: {{ server_time }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-memory me-2 text-muted"></i>
+                            Memory Usage: {{ memory_usage }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.timeline {
+    position: relative;
+    padding-left: 20px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -20px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #007bff;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #e9ecef;
+}
+
+.timeline-content {
+    padding-left: 10px;
+}
+
+.banned-user-item {
+    transition: background-color 0.2s ease;
+}
+
+.banned-user-item:hover {
+    background-color: #f8f9fa;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table td {
+    vertical-align: middle;
+}
+</style>
+{% endblock %} 

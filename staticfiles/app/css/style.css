@@ -1,0 +1,383 @@
+/* Vote sections */
+.vote-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.vote-section .btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vote-count {
+    font-weight: bold;
+    font-size: 14px;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Answer items */
+.answer-item {
+    margin-bottom: 1rem;
+}
+
+.answer-content {
+    word-wrap: break-word;
+}
+
+/* Mention links */
+.mention-link {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    padding: 2px 4px;
+    border-radius: 3px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.mention-link:hover {
+    background-color: #bbdefb;
+    color: #1565c0;
+    text-decoration: none;
+}
+
+/* Profile Header with Background Image */
+.profile-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: white;
+    padding: 60px 0;
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.profile-header-overlay {
+    background: rgba(0, 0, 0, 0.4);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.profile-header .container {
+    position: relative;
+    z-index: 2;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    object-fit: cover;
+    margin: 0 auto;
+    display: block;
+}
+
+.profile-avatar.bg-light {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.stat small {
+    font-size: 0.875rem;
+    opacity: 0.8;
+}
+
+/* Replies and Comments */
+.replies-container {
+    border-left: 3px solid #e9ecef;
+    padding-left: 1rem;
+    margin-left: 2rem;
+    margin-top: 1rem;
+}
+
+.replies-indent {
+    position: relative;
+}
+
+.replies-indent::before {
+    content: '';
+    position: absolute;
+    left: -1rem;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: #dee2e6;
+}
+
+.view-replies-btn {
+    transition: all 0.3s ease;
+}
+
+.view-replies-btn:hover {
+    transform: translateX(2px);
+}
+
+.view-replies-btn.collapsed {
+    background-color: #6c757d;
+    color: white;
+}
+
+.view-replies-btn.collapsed:hover {
+    background-color: #5a6268;
+}
+
+/* Nested replies styling - proper indentation */
+.replies-container .answer-item {
+    margin-left: 0;
+    border-left: 2px solid #f8f9fa;
+    padding-left: 1rem;
+    margin-bottom: 1rem;
+}
+
+.replies-container .replies-container .answer-item {
+    margin-left: 0;
+    border-left: 1px solid #e9ecef;
+    padding-left: 0.75rem;
+}
+
+.replies-container .replies-container .replies-container .answer-item {
+    margin-left: 0;
+    border-left: 1px solid #dee2e6;
+    padding-left: 0.5rem;
+}
+
+/* Reply form styling */
+.reply-form {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    margin-top: 1rem;
+}
+
+.reply-form textarea {
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+}
+
+.reply-form textarea:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+} 
+
+/* Additional spacing and layout fixes */
+.answer-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.answer-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Ensure proper spacing between nested elements */
+.replies-container .replies-container {
+    margin-top: 0.5rem;
+}
+
+/* Prevent button text wrapping */
+.view-replies-btn {
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+/* Ensure proper form spacing */
+.reply-form {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Prevent any unwanted margins */
+.replies-container .answer-item:first-child {
+    margin-top: 0;
+}
+
+.replies-container .answer-item:last-child {
+    margin-bottom: 0;
+} 
+
+/* Show more/less buttons */
+.show-more-btn {
+    transition: all 0.3s ease;
+    border-radius: 20px;
+    padding: 0.5rem 1.5rem;
+}
+
+.show-more-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Comment system improvements */
+.responses-section {
+    margin-top: 2rem;
+}
+
+.responses-section h3 {
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Ensure proper spacing for comment hierarchy */
+.answer-item {
+    margin-bottom: 1.5rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.answer-item:hover {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: box-shadow 0.3s ease;
+} 
+
+/* CKEditor Content Styles */
+.answer-content,
+.question-content {
+    line-height: 1.6;
+}
+
+.answer-content img,
+.question-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+.answer-content p,
+.question-content p {
+    margin-bottom: 1rem;
+}
+
+.answer-content ul,
+.question-content ul,
+.answer-content ol,
+.question-content ol {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+}
+
+.answer-content blockquote,
+.question-content blockquote {
+    border-left: 4px solid var(--primary-color);
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+    color: var(--text-secondary);
+}
+
+.answer-content code,
+.question-content code {
+    background: var(--bg-secondary);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.answer-content pre,
+.question-content pre {
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.answer-content pre code,
+.question-content pre code {
+    background: none;
+    padding: 0;
+}
+
+.answer-content table,
+.question-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.answer-content table th,
+.question-content table th,
+.answer-content table td,
+.question-content table td {
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.answer-content table th,
+.question-content table th {
+    background: var(--bg-primary);
+    font-weight: 600;
+}
+
+/* CKEditor Widget Styles */
+.django-ckeditor-5 {
+    width: 100%;
+}
+
+.ck-editor__editable {
+    min-height: 200px;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius-sm) !important;
+}
+
+.ck-editor__editable:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
+}
+
+/* Reply form CKEditor */
+.reply-form .ck-editor__editable {
+    min-height: 150px;
+}
+
+/* CKEditor Toolbar */
+.ck-toolbar {
+    border: 1px solid var(--border-color) !important;
+    border-bottom: none !important;
+    border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0 !important;
+    background: var(--bg-primary) !important;
+}
+
+/* Text alignment classes */
+.text-left {
+    text-align: left !important;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+.text-justify {
+    text-align: justify !important;
+} 

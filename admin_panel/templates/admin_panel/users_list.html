@@ -1,0 +1,161 @@
+{% extends 'app/base.html' %}
+
+{% block title %}Moderate Users{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-users"></i> Moderate Users</h1>
+                <a href="{% url 'admin_panel:dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Search and Filter -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-6">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   value="{{ search }}" placeholder="Search username, email, or name...">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All</option>
+                                <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+                                <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+                                <option value="banned" {% if status == 'banned' %}selected{% endif %}>Banned</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Users List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Users ({{ users.count }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if users %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Name</th>
+                                        <th>Joined</th>
+                                        <th>Activity</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'profile' user.username %}" target="_blank">
+                                                    {{ user.username }}
+                                                </a>
+                                                {% if user.is_superuser %}
+                                                    <span class="badge bg-danger">Admin</span>
+                                                {% elif user.is_staff %}
+                                                    <span class="badge bg-warning">Staff</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ user.email }}</td>
+                                            <td>
+                                                {% if user.first_name or user.last_name %}
+                                                    {{ user.first_name }} {{ user.last_name }}
+                                                {% else %}
+                                                    <span class="text-muted">Not provided</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ user.date_joined|timesince }} ago</td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    {{ user.question_count }} questions, {{ user.answer_count }} answers
+                                                </small>
+                                            </td>
+                                            <td>
+                                                {% if user.is_active %}
+                                                    <span class="badge bg-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Inactive</span>
+                                                {% endif %}
+                                                {% if user.profile.is_banned %}
+                                                    <span class="badge bg-warning">Banned</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    {% if not user.is_superuser %}
+                                                        <form method="post" action="{% url 'admin_panel:toggle_user_status' user.pk %}" 
+                                                              style="display: inline;">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-sm {% if user.is_active %}btn-warning{% else %}btn-success{% endif %}"
+                                                                    onclick="return confirm('Are you sure you want to {% if user.is_active %}deactivate{% else %}activate{% endif %} this user?')">
+                                                                {% if user.is_active %}
+                                                                    <i class="fas fa-user-slash"></i> Deactivate
+                                                                {% else %}
+                                                                    <i class="fas fa-user-check"></i> Activate
+                                                                {% endif %}
+                                                            </button>
+                                                        </form>
+                                                        <form method="post" action="{% url 'admin_panel:toggle_user_ban' user.pk %}" 
+                                                              style="display: inline;">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-sm {% if user.profile.is_banned %}btn-success{% else %}btn-warning{% endif %}"
+                                                                    onclick="return confirm('Are you sure you want to {% if user.profile.is_banned %}unban{% else %}ban{% endif %} this user?')">
+                                                                {% if user.profile.is_banned %}
+                                                                    <i class="fas fa-user-check"></i> Unban
+                                                                {% else %}
+                                                                    <i class="fas fa-ban"></i> Ban
+                                                                {% endif %}
+                                                            </button>
+                                                        </form>
+                                                    {% else %}
+                                                        <span class="text-muted">Superuser</span>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No users found</h5>
+                            <p class="text-muted">Try adjusting your search criteria</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

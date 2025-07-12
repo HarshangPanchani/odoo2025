@@ -1,0 +1,269 @@
+{% extends 'app/base.html' %}
+
+{% block title %}Admin Panel Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="fas fa-shield-alt"></i> Admin Panel Dashboard
+            </h1>
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ total_questions }}</h4>
+                            <p class="card-text">Total Questions</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-question-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ total_answers }}</h4>
+                            <p class="card-text">Total Answers</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-comments fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ total_users }}</h4>
+                            <p class="card-text">Total Users</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ total_tags }}</h4>
+                            <p class="card-text">Total Tags</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-tags fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-question-circle fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Questions</h5>
+                    <p class="card-text">Moderate and manage all questions</p>
+                    <a href="{% url 'admin_panel:questions_list' %}" class="btn btn-primary">
+                        Manage Questions
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-comments fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Answers</h5>
+                    <p class="card-text">Moderate and manage all answers</p>
+                    <a href="{% url 'admin_panel:answers_list' %}" class="btn btn-success">
+                        Manage Answers
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Users</h5>
+                    <p class="card-text">Manage users and permissions</p>
+                    <a href="{% url 'admin_panel:users_list' %}" class="btn btn-info">
+                        Manage Users
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-tags fa-3x text-warning mb-3"></i>
+                    <h5 class="card-title">Tags</h5>
+                    <p class="card-text">Manage tags for questions</p>
+                    <a href="{% url 'admin_panel:tags_list' %}" class="btn btn-warning">
+                        Manage Tags
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Content -->
+    <div class="row">
+        <!-- Recent Questions -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-question-circle"></i> Recent Questions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_questions_list %}
+                        <div class="list-group list-group-flush">
+                            {% for question in recent_questions_list %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">
+                                                <a href="{% url 'question_detail' question.pk %}" target="_blank">
+                                                    {{ question.title|truncatechars:50 }}
+                                                </a>
+                                            </h6>
+                                            <small class="text-muted">
+                                                by {{ question.author.username }} • {{ question.created_at|timesince }} ago
+                                            </small>
+                                        </div>
+                                        <span class="badge {% if question.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                            {% if question.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No recent questions</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Answers -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments"></i> Recent Answers
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_answers_list %}
+                        <div class="list-group list-group-flush">
+                            {% for answer in recent_answers_list %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">
+                                                <a href="{% url 'question_detail' answer.question.pk %}#answer-{{ answer.pk }}" target="_blank">
+                                                    {{ answer.content|truncatechars:50 }}
+                                                </a>
+                                            </h6>
+                                            <small class="text-muted">
+                                                by {{ answer.author.username }} • {{ answer.created_at|timesince }} ago
+                                            </small>
+                                        </div>
+                                        <span class="badge {% if answer.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                            {% if answer.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No recent answers</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Users -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users"></i> Recent Users
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_users %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Joined</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in recent_users %}
+                                        <tr>
+                                            <td>{{ user.username }}</td>
+                                            <td>{{ user.email }}</td>
+                                            <td>{{ user.date_joined|timesince }} ago</td>
+                                            <td>
+                                                {% if user.is_active %}
+                                                    <span class="badge bg-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Inactive</span>
+                                                {% endif %}
+                                                {% if user.profile.is_banned %}
+                                                    <span class="badge bg-warning">Banned</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No recent users</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

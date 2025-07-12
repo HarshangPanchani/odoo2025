@@ -1,0 +1,453 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% load app_extras %}
+
+{% block title %}StackIt - Home{% endblock %}
+
+{% block content %}
+<style>
+    /* Custom CSS for user-friendly design */
+    :root {
+        --primary-color: #4f46e5;
+        --primary-hover: #3730a3;
+        --secondary-color: #6b7280;
+        --success-color: #10b981;
+        --bg-light: #f8fafc;
+        --bg-card: #ffffff;
+        --text-primary: #1f2937;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+        --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --border-radius: 12px;
+    }
+
+    body {
+        background-color: var(--bg-light);
+        color: var(--text-primary);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    .card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        background: var(--bg-card);
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .question-card {
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .question-card:hover {
+        border-left-color: var(--primary-hover);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-outline-primary {
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        background: transparent;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover,
+    .btn-outline-primary.active {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .card-title {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-title a {
+        color: var(--text-primary);
+        transition: color 0.3s ease;
+    }
+
+    .card-title a:hover {
+        color: var(--primary-color);
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+        border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+        border: none;
+        padding: 1rem 1.5rem;
+    }
+
+    .card-header .card-title {
+        color: white;
+        margin: 0;
+    }
+
+    .stats {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .stat-item {
+        background: var(--bg-light);
+        padding: 0.75rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .stat-item:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .stat-item:hover .text-muted {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .stat-number {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--primary-color);
+    }
+
+    .stat-item:hover .stat-number {
+        color: white;
+    }
+
+    .badge {
+        border-radius: 20px;
+        padding: 0.5rem 0.75rem;
+        font-weight: 500;
+        font-size: 0.8rem;
+    }
+
+    .badge.bg-secondary {
+        background: var(--secondary-color) !important;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .badge.bg-secondary:hover {
+        background: var(--primary-color) !important;
+        transform: translateY(-1px);
+    }
+
+    .badge.bg-success {
+        background: var(--success-color) !important;
+        color: white;
+    }
+
+    .form-control {
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .pagination .page-link {
+        color: var(--primary-color);
+        border: 2px solid var(--border-color);
+        margin: 0 2px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-link:hover {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .pagination .page-item.active .page-link {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .text-muted {
+        color: var(--text-secondary) !important;
+    }
+
+    .h3 {
+        color: var(--text-primary);
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .fa-question-circle {
+        color: var(--secondary-color);
+    }
+
+    /* Responsive improvements */
+    @media (max-width: 768px) {
+        .stats {
+            flex-direction: row;
+            justify-content: space-around;
+        }
+        
+        .stat-item {
+            padding: 0.5rem;
+            text-align: center;
+            min-width: 60px;
+        }
+        
+        .btn-group {
+            width: 100%;
+        }
+        
+        .btn-group .btn {
+            flex: 1;
+        }
+    }
+
+    /* Animation for loading */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .question-card {
+        animation: fadeIn 0.5s ease;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--bg-light);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--secondary-color);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-color);
+    }
+</style>
+
+<div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3">Questions</h1>
+            <a href="{% url 'ask_question' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Ask Question
+            </a>
+        </div>
+        <!-- Sort Options -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="btn-group" role="group">
+                            <a href="?sort=recent{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+                               class="btn btn-outline-primary {% if sort == 'recent' %}active{% endif %}">
+                                Recent
+                            </a>
+                            <a href="?sort=popular{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+                               class="btn btn-outline-primary {% if sort == 'popular' %}active{% endif %}">
+                                Popular
+                            </a>
+                            <a href="?sort=unanswered{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+                               class="btn btn-outline-primary {% if sort == 'unanswered' %}active{% endif %}">
+                                Unanswered
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <small class="text-muted">{{ page_obj.paginator.count }} questions</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Questions List -->
+        {% if page_obj %}
+            {% for question in page_obj %}
+            <div class="card mb-3 question-card">
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Stats -->
+                        <div class="col-md-2 text-center">
+                            <div class="stats">
+                                <div class="stat-item">
+                                    <span class="stat-number">{{ question.vote_count }}</span>
+                                    <small class="text-muted d-block">votes</small>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number">{{ question.answer_count }}</span>
+                                    <small class="text-muted d-block">answers</small>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number">{{ question.views }}</span>
+                                    <small class="text-muted d-block">views</small>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Question Content -->
+                        <div class="col-md-10">
+                            <h5 class="card-title">
+                                <a href="{{ question.get_absolute_url }}" class="text-decoration-none">
+                                    {{ question.title }}
+                                </a>
+                            </h5>
+                            <p class="card-text text-muted">
+                                {{ question.description|truncatewords:30|striptags }}
+                            </p>
+                            <!-- Tags -->
+                            <div class="mb-2">
+                                {% for tag in question.tags.all %}
+                                <a href="{% url 'tag_detail' tag.pk %}" class="badge bg-secondary text-decoration-none me-1">
+                                    {{ tag.name }}
+                                </a>
+                                {% endfor %}
+                            </div>
+                            <!-- Meta -->
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    Asked {{ question.created_at|timesince }} ago by 
+                                    <a href="{% url 'profile' question.author.username %}" class="text-decoration-none">
+                                        {{ question.author.username }}
+                                    </a>
+                                </small>
+                                {% if question.has_accepted_answer %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>Answered
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Questions pagination">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">Previous</a>
+                        </li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">Last</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
+                <h4>No questions found</h4>
+                <p class="text-muted">Be the first to ask a question!</p>
+                <a href="{% url 'ask_question' %}" class="btn btn-primary">Ask Question</a>
+            </div>
+        {% endif %}
+    </div>
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Search Filters -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Search & Filters</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{% url 'home' %}">
+                    <div class="mb-3">
+                        <label for="q" class="form-label">Search</label>
+                        <input type="text" class="form-control" id="q" name="q" 
+                               value="{{ request.GET.q }}" placeholder="Search questions...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tags</label>
+                        {% for tag in tags %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="tags" 
+                                   value="{{ tag.pk }}" id="tag_{{ tag.pk }}"
+                                   {% if tag.pk|stringformat:"s" in selected_tags %}checked{% endif %}>
+                            <label class="form-check-label" for="tag_{{ tag.pk }}">
+                                {{ tag.name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                </form>
+            </div>
+        </div>
+        <!-- Popular Tags -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Popular Tags</h5>
+            </div>
+            <div class="card-body">
+                {% for tag in tags %}
+                <a href="{% url 'tag_detail' tag.pk %}" class="badge bg-secondary text-decoration-none me-1 mb-1">
+                    {{ tag.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
