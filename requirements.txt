@@ -1,2 +1,5 @@
 Django==4.2.7
-Pillow==10.1.0 
+Pillow==10.1.0
+mysqlclient==2.1.1
+whitenoise==6.8.0
+gunicorn==21.2.0
